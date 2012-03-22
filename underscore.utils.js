@@ -37,6 +37,40 @@ _.mixin({
         //RETURN MATCHES
         return matches;
         
+    },
+    
+    /************************************************************************
+     * Pluralizes a word by appending an 's' unless count == 1. Also tries to
+     *  handle odd English words such as 'person/people' and 'is/are'
+     * @param {string} word 
+     * @param {Array} count 
+     * @return {string} */
+    plural: function(word, count){
+        
+        //DICTIONARY OF EXCEPTIONAL WORDS
+        var dict = {
+            person: 'people',
+            is: 'are',
+            has: 'have'
+        };
+        
+        //IS WORD IN DICTIONARY?
+        var in_dict = dict[word] || (function(){
+            var result = false;
+            for(name in dict){
+                if(dict[name] == word){
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        })();
+        
+        //RETURN PLURAL VERSION
+        return in_dict ? 
+            (count == 1 ? word : dict[word]) : 
+            (word + (count != 1 ? 's' : ''));
+        
     }
     
 });
