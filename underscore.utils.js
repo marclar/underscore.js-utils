@@ -71,6 +71,53 @@ _.mixin({
             (count == 1 ? word : dict[word]) : 
             (word + (count != 1 ? 's' : ''));
         
+    },
+    
+    /************************************************************************
+     * Makes a sentence out of an array of "subjects", transformed by the
+     *  _iterator function, with a _max number of subjects displayed, followed
+     *  by "and X more..."
+     *  e.g., "John, George, Paul and 1 more"
+     * @param {Object} subjects 
+     * @param {Array} count 
+     * @return {string} */
+    sentence: function(subjects, _iterator, _max){
+        
+        //MAKES A SENTENCE OUT OF AN ARRAY OF "subjects", TRANSFORMED BY THE
+        //_iterator FUNCTION, WITH A _max # OF subjects DISPLAYED FOLLOWED BY
+        //"and X more"
+        var max = subjects.length;
+        var iterator = function(){return this; };
+        if(arguments.length === 3){
+            max = _max;
+            iterator = _iterator;
+        }
+        else if(arguments.length === 2){
+            (function(hasIterator, arg){
+                max = hasIterator ? max : arg;
+                iterator = hasIterator ? arg : iterator;
+            })(typeof arguments[1] === 'function', arguments[1]);
+        }
+        
+        var extras = subjects.length > max;
+        max = extras ? max : subjects.length;
+        var output = [];
+        for(var i = 0, j = max; i < j; i++){
+            
+            output.push((function(obj){
+                return iterator.apply(obj, arguments);
+            })(arr[i], iterator));
+            
+            if((max != 1) && i != (max - 1)){
+                output.push((i == max - 2) ? (extras ? ', ' : ' and ') : ', ');
+            }
+            
+        }
+        if(extras){
+            output.push(' and ' + (subjects.length - max) + ' more');
+        }
+        return output.join('');
+            
     }
     
 });
