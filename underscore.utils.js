@@ -75,47 +75,49 @@ _.mixin({
     
     /************************************************************************
      * Makes a sentence out of an array of "subjects", transformed by the
-     *  _iterator function, with a _max number of subjects displayed, followed
+     *  iterator function, with a max number of subjects displayed, followed
      *  by "and X more..."
      *  e.g., "John, George, Paul and 1 more"
      * @param {Object} subjects 
-     * @param {Array} count 
+     * @param {Function} iterator 
+     * @param {number} max
+     * @param {?Function({string}, {x_more})} suffix Optional function to transform the "X more"
      * @return {string} */
-    sentence: function(subjects, _iterator, _max){
+    sentence: function(subjects, iterator, max, suffix){
         
         //MAKES A SENTENCE OUT OF AN ARRAY OF "subjects", TRANSFORMED BY THE
-        //_iterator FUNCTION, WITH A _max # OF subjects DISPLAYED FOLLOWED BY
+        //iterator FUNCTION, WITH A max # OF subjects DISPLAYED FOLLOWED BY
         //"and X more"
-        var max = subjects.length;
-        var iterator = function(){return this; };
-        if(arguments.length === 3){
-            max = _max;
-            iterator = _iterator;
-        }
-        else if(arguments.length === 2){
-            (function(hasIterator, arg){
-                max = hasIterator ? max : arg;
-                iterator = hasIterator ? arg : iterator;
-            })(typeof arguments[1] === 'function', arguments[1]);
-        }
-        
         var extras = subjects.length > max;
         max = extras ? max : subjects.length;
         var output = [];
+        
+        //FORMAT EACH SUBJECT TO BE DISPLAYED
         for(var i = 0, j = max; i < j; i++){
             
-            output.push((function(obj){
-                return iterator.apply(obj, arguments);
-            })(subjects[i], iterator));
+            output.push(iterator.call(this, subjects[i]));
             
             if((max != 1) && i != (max - 1)){
                 output.push((i == max - 2) ? (extras ? ', ' : ' and ') : ', ');
             }
-            
+
         }
+        
+        //ADD EXTRA TEXT?
         if(extras){
-            output.push(' and ' + (subjects.length - max) + ' more');
+            
+            var x_more = (subjects.length - max) + ' more';
+            
+            //FORMAT THIS TEXT?
+            if(suffix){
+                x_more = suffix.apply(this, [x_more, (subjects.length - max)]);
+            }
+            
+            output.push(' and ' + x_more);
         }
+        
+        log(output.join(''));
+        
         return output.join('');
             
     }
