@@ -106,7 +106,7 @@ _.mixin({
             
             output.push((function(obj){
                 return iterator.apply(obj, arguments);
-            })(arr[i], iterator));
+            })(subjects[i], iterator));
             
             if((max != 1) && i != (max - 1)){
                 output.push((i == max - 2) ? (extras ? ', ' : ' and ') : ', ');
